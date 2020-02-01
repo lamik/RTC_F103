@@ -43,7 +43,13 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
-    
+  //
+  //	You have to do not let Init code to reinitialize Time and Date in RTC.
+  //	It's "a bug" in HAL widely described and complain on forums.
+  //	That causes every MCU restart the time and date will be same as you configured in CubeMX.
+  //	All you have to do is just return before init time/date in this user section.
+  //
+    return;
   /* USER CODE END Check_RTC_BKUP */
 
   /** Initialize RTC and set the Time and Date 
