@@ -26,7 +26,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdio.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +46,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+RTC_TimeTypeDef RtcTime;
+RTC_DateTypeDef RtcDate;
+
+uint8_t CompareSeconds;
+
+uint8_t Message[64];
+uint8_t MessageLen;
 
 /* USER CODE END PV */
 
@@ -101,6 +108,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_RTC_GetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN);
+	  HAL_RTC_GetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN);
+
+	  if(RtcTime.Seconds != CompareSeconds)
+	  {
+		  MessageLen = sprintf((char*)Message, "Date: %02d.%02d.20%02d Time: %02d:%02d:%02d\n\r", RtcDate.Date, RtcDate.Month, RtcDate.Year, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds);
+		  HAL_UART_Transmit(&huart2, Message, MessageLen, 100);
+		  CompareSeconds = RtcTime.Seconds;
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
