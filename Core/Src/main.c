@@ -50,6 +50,7 @@ RTC_TimeTypeDef RtcTime;
 RTC_DateTypeDef RtcDate;
 
 uint8_t CompareSeconds;
+uint8_t CompareDate;
 
 uint8_t Message[64];
 uint8_t MessageLen;
@@ -65,6 +66,7 @@ void SystemClock_Config(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 void SetRTC(void);
+void BackupDateToBR(void);
 /* USER CODE END 0 */
 
 /**
@@ -116,6 +118,11 @@ int main(void)
 		  MessageLen = sprintf((char*)Message, "Date: %02d.%02d.20%02d Time: %02d:%02d:%02d\n\r", RtcDate.Date, RtcDate.Month, RtcDate.Year, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds);
 		  HAL_UART_Transmit(&huart2, Message, MessageLen, 100);
 		  CompareSeconds = RtcTime.Seconds;
+	  }
+	  if(RtcDate.Date != CompareDate)
+	  {
+		  BackupDateToBR();
+		  CompareDate = RtcDate.Date;
 	  }
 
 	  if(GPIO_PIN_RESET == HAL_GPIO_ReadPin(TEST_GPIO_Port, TEST_Pin))
@@ -177,6 +184,11 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void BackupDateToBR(void)
+{
+	HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR2, ((RtcDate.Date << 8) | (RtcDate.Month)));
+	HAL_RTCEx_BKUPWrite(&hrtc, RTC_BKP_DR3, ((RtcDate.Year << 8) | (RtcDate.WeekDay)));
+}
 
 void SetRTC(void)
 {
