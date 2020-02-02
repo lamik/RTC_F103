@@ -64,7 +64,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void SetRTC(void);
 /* USER CODE END 0 */
 
 /**
@@ -116,6 +116,13 @@ int main(void)
 		  MessageLen = sprintf((char*)Message, "Date: %02d.%02d.20%02d Time: %02d:%02d:%02d\n\r", RtcDate.Date, RtcDate.Month, RtcDate.Year, RtcTime.Hours, RtcTime.Minutes, RtcTime.Seconds);
 		  HAL_UART_Transmit(&huart2, Message, MessageLen, 100);
 		  CompareSeconds = RtcTime.Seconds;
+	  }
+
+	  if(GPIO_PIN_RESET == HAL_GPIO_ReadPin(TEST_GPIO_Port, TEST_Pin))
+	  {
+		 while(GPIO_PIN_RESET == HAL_GPIO_ReadPin(TEST_GPIO_Port, TEST_Pin))
+		 {}
+		 SetRTC();
 	  }
     /* USER CODE END WHILE */
 
@@ -171,6 +178,34 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
+void SetRTC(void)
+{
+	RTC_TimeTypeDef sTime = {0};
+	RTC_DateTypeDef DateToUpdate = {0};
+
+	/** Initialize RTC and set the Time and Date
+	*/
+	sTime.Hours = 23;
+	sTime.Minutes = 59;
+	sTime.Seconds = 56;
+
+	if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+
+	DateToUpdate.WeekDay = RTC_WEEKDAY_SATURDAY;
+	DateToUpdate.Month = RTC_MONTH_FEBRUARY;
+	DateToUpdate.Date = 3;
+	DateToUpdate.Year = 20;
+
+	if (HAL_RTC_SetDate(&hrtc, &DateToUpdate, RTC_FORMAT_BIN) != HAL_OK)
+	{
+	  Error_Handler();
+	}
+
+	BackupDateToBR();
+}
 /* USER CODE END 4 */
 
 /**
