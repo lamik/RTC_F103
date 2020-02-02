@@ -21,7 +21,7 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
-
+extern RTC_DateTypeDef RtcDate;
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -43,6 +43,13 @@ void MX_RTC_Init(void)
   }
 
   /* USER CODE BEGIN Check_RTC_BKUP */
+
+  RtcDate.Date = (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2) >> 8);
+  RtcDate.Month = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2);
+  RtcDate.Year = (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR3) >> 8);
+  RtcDate.WeekDay = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR3);
+
+  HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN);
   //
   //	You have to do not let Init code to reinitialize Time and Date in RTC.
   //	It's "a bug" in HAL widely described and complain on forums.
