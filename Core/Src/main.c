@@ -16,6 +16,15 @@
   *
   ******************************************************************************
   */
+  *
+  *  Created on: 4.01.2020
+  *      Author: Mateusz Salamon
+  *      www.msalamon.pl
+  *
+  *      Website: https://msalamon.pl/wbudowany-rtc-w-stm32f1/
+  *      GitHub:  https://github.com/lamik/RTC_F103
+  *      Contact: mateusz@msalamon.pl
+*/
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
