@@ -22,6 +22,9 @@
 
 /* USER CODE BEGIN 0 */
 extern RTC_DateTypeDef RtcDate;
+extern RTC_TimeTypeDef RtcTime;
+uint32_t CalculateDayNumber(uint8_t Date, uint8_t Month, uint8_t Year); // DD.MM.YY
+void CalculateDateFromDayNumber(uint32_t DayNumber, uint8_t *Date, uint8_t *Month, uint8_t *Year);
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -44,12 +47,25 @@ void MX_RTC_Init(void)
 
   /* USER CODE BEGIN Check_RTC_BKUP */
 
+  RTC_DateTypeDef BackupDate;
+
   RtcDate.Date = (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2) >> 8);
   RtcDate.Month = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR2);
   RtcDate.Year = (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR3) >> 8);
   RtcDate.WeekDay = HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR3);
 
+  HAL_RTC_GetTime(&hrtc, &RtcTime, RTC_FORMAT_BIN); // There is also an internal date update based on HW RTC time elapsed!!
+  HAL_RTC_GetDate(&hrtc, &BackupDate, RTC_FORMAT_BIN); // Days elapsed since MCU power down
+
+  uint32_t BackupDateDays = CalculateDayNumber(BackupDate.Date, BackupDate.Month, BackupDate.Year);
+  uint32_t RtcDateDays = CalculateDayNumber(RtcDate.Date, RtcDate.Month, RtcDate.Year);
+
+  RtcDateDays += (BackupDateDays - CalculateDayNumber(1, 1, 0));
+
+  CalculateDateFromDayNumber(RtcDateDays, &RtcDate.Date, &RtcDate.Month, &RtcDate.Year);
+
   HAL_RTC_SetDate(&hrtc, &RtcDate, RTC_FORMAT_BIN);
+
   //
   //	You have to do not let Init code to reinitialize Time and Date in RTC.
   //	It's "a bug" in HAL widely described and complain on forums.
@@ -117,7 +133,34 @@ void HAL_RTC_MspDeInit(RTC_HandleTypeDef* rtcHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+uint32_t CalculateDayNumber(uint8_t Date, uint8_t Month, uint8_t Year)
+{
+	// Format:
+	// DD.MM.YY
+	uint32_t _Year = Year + 20;
+	Month = (Month + 9) % 12;
+	_Year = _Year - (Month / 10);
+	return ((365 * _Year) + (_Year / 4) - (_Year / 100) + (_Year / 400) + (((Month * 306) + 5) / 10) + (Date - 1));
+}
 
+void CalculateDateFromDayNumber(uint32_t DayNumber, uint8_t *Date, uint8_t *Month, uint8_t *Year)
+{
+	uint32_t _Date, _Month, _Year;
+	_Year = ((10000 * DayNumber) + 14780) / 3652425;
+	int32_t ddd = DayNumber - ((365 * _Year) + (_Year / 4) - (_Year / 100) + (_Year / 400));
+	if (ddd < 0)
+	{
+		_Year -= 1;
+		ddd = DayNumber - ((365 * _Year) + (_Year / 4) - (_Year / 100) + (_Year / 400));
+	}
+	int32_t mi = ((100 * ddd) + 52) / 3060;
+	_Month = (mi + 2) % 12 + 1;
+	_Year = _Year + (mi + 2)/12;
+	_Date = ddd - ((mi * 306) + 5)/10 + 1;
+	*Date = _Date;
+	*Month = _Month;
+	*Year = _Year - 20;
+}
 /* USER CODE END 1 */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
