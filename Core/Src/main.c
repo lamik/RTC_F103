@@ -15,7 +15,17 @@
   *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
-  */
+  *
+  *  Created on: 1.02.2019
+  *      Author: Mateusz Salamon
+  *    www.msalamon.pl
+  *
+  *      Website: https://msalamon.pl/wbudowany-rtc-w-stm32f1/
+  *               https://msalamon.pl/co-ta-data-w-rct-stm32f1/
+  *               https://msalamon.pl/zapamietajmy-nastawe-rtc-stm32f1-przy-pomocy-bateryjki-na-vbat-zewnetrzny-kwarc-na-bluepill/
+  *      GitHub:  https://github.com/lamik/RTC_F103
+  *      Contact: mateusz@msalamon.pl
+*/
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
